@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeu Souris & Clavier - Seniors Connect</title>
+  <style>
+    @keyframes reward {
+      0% { transform: scale(1); opacity: 0; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #e0f7fa, #b2ebf2);
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2em;
+      color: #00796b;
+      margin-bottom: 40px;
+    }
+    .jeu {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+    .zone-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .zone {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    .help-bulle {
+      background: #fffde7;
+      border: 1px solid #ffeb3b;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85em;
+      width: 230px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .btn-action {
+      background-color: #4db6ac;
+      color: white;
+      margin-bottom: 10px;
+    }
+    .btn-reload {
+      background-color: #ff7043;
+      color: white;
+    }
+    input {
+      font-size: 1.2em;
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+      margin: 10px auto;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .drop-zone {
+      height: 120px;
+      border: 2px dashed #00796b;
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2em;
+      margin: 20px auto;
+    }
+    .draggable {
+      display: inline-block;
+      padding: 15px 25px;
+      margin-top: 10px;
+      background-color: #81d4fa;
+      border-radius: 8px;
+      cursor: grab;
+    }
+    .scroll-zone {
+      height: 150px;
+      overflow-y: auto;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: left;
+      background-color: #f1f8e9;
+      margin-top: 20px;
+    }
+    .reward {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3em;
+      color: gold;
+      animation: reward 1.5s ease-out;
+      pointer-events: none;
+    }
+    #trophee {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: #fff3cd;
+      border: 2px solid #ffca28;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+<header style="display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 80px;">
+  <img src="logo.png" alt="Logo Seniors Connect" style="height: 100px;">
+  <h1 style="margin: 0; font-size: 2.4em;">🖱️ Clavier & Souris </h1>
+</header>
+  <div id="trophee">🏆 Réussites : <span id="score">0</span></div>
+  <h1></h1>
+  <div class="jeu">
+
+    <!-- Activité 1 -->
+    <div class="zone-wrapper">
+      <div class="help-bulle">💡 Cliquez sur le bouton vert avec le bouton gauche de la souris.</div>
+      <div class="zone">
+        <h2>1. Cliquez sur le bouton</h2>
+        <button class="btn-action" onclick="afficherMessage()">Cliquez ici !</button><br>
+        <button class="btn-reload" onclick="resetClic()">Recommencer</button>
+        <p id="message-clic" class="success"></p>
+      </div>
+    </div>
+
+    <!-- Activité 2 -->
+    <div class="zone-wrapper">
+      <div class="help-bulle">💡 Utilisez le clic gauche OU clic droit sur la zone encadrée.</div>
+      <div class="zone">
+        <h2>2. Clic gauche ou droit</h2>
+        <div oncontextmenu="clicDroit(event)" onclick="clicGauche()" class="drop-zone">Cliquez ici avec le bouton gauche ou droit</div>
+        <button class="btn-reload" onclick="resetBouton()">Recommencer</button>
+        <p id="message-clics" class="success"></p>
+      </div>
+    </div>
+
+    <!-- Activité 3 -->
+    <div class="zone-wrapper">
+      <div class="help-bulle">💡 Tapez votre prénom dans le champ prévu.</div>
+      <div class="zone">
+        <h2>3. Tapez votre prénom</h2>
+        <input type="text" id="champTexte" placeholder="Votre prénom ici..." oninput="verifierTexte()" />
+        <br><button class="btn-reload" onclick="resetTexte()">Recommencer</button>
+        <p id="message-texte" class="success"></p>
+      </div>
+    </div>
+
+    <!-- Activité 4 -->
+    <div class="zone-wrapper">
+      <div class="help-bulle">💡 Tapez exactement le mot avec accent affiché (sans majuscule).</div>
+      <div class="zone">
+        <h2>4. Tapez le mot : <span id="motAccent">école</span></h2>
+        <input type="text" id="champMaj" placeholder="Tapez ici..." oninput="verifierAccent()" />
+        <br><button class="btn-reload" onclick="resetAccent()">Recommencer</button>
+        <p id="message-maj" class="success"></p>
+      </div>
+    </div>
+
+    <!-- Activité 5 -->
+    <div class="zone-wrapper">
+      <div class="help-bulle">💡 Cliquez et faites glisser le fichier dans la corbeille.</div>
+      <div class="zone">
+        <h2>5. Glissez le fichier</h2>
+        <div class="draggable" draggable="true" id="objet">🗂️ Fichier à déplacer</div>
+        <div class="drop-zone" id="corbeille">🗑️ Corbeille</div>
+        <button class="btn-reload" onclick="resetGlisser()">Recommencer</button>
+        <p id="message-drop" class="success"></p>
+      </div>
+    </div>
+
+    <!-- Activité 6 -->
+    <div class="zone-wrapper">
+      <div class="help-bulle">💡 Faites défiler la zone avec la molette de votre souris pour trouver le mot caché.</div>
+      <div class="zone">
+        <h2>6. Faites défiler pour trouver</h2>
+        <div class="scroll-zone" id="scrollZone" onscroll="detectMotVisible()">
+          <p>Lorem ipsum dolor sit amet...</p>
+          <p>Vestibulum fermentum, sapien nec suscipit placerat...</p>
+          <p>Integer sed diam blandit...</p>
+          <p id="motCache"><strong>Vous avez trouvé le mot : BRAVO ! 🎉</strong></p>
+        </div>
+        <button class="btn-reload" onclick="resetScroll()">Recommencer</button>
+      </div>
+    </div>
+
+  </div>
+  <div id="rewardZone"></div>
+<!-- Boutons finaux -->
+<div style="margin-top: 60px;">
+  <button onclick="location.reload()" style="font-size: 1.5em; padding: 20px 40px; background: #0288d1; color: white; border-radius: 12px; margin-right: 20px;">
+    🔄 Recommencer toutes les activités
+  </button>
+  <button onclick="window.close()" style="font-size: 1.5em; padding: 20px 40px; background: #c62828; color: white; border-radius: 12px;">
+    ❌ Fermer la page
+  </button>
+</div>
+
+  <script>
+    let score = 0;
+    const mots = ["école", "hôpital", "forêt", "élève", "été", "français"];
+    const motChoisi = mots[Math.floor(Math.random() * mots.length)];
+    document.getElementById("motAccent").textContent = motChoisi;
+
+    function incrementScore() {
+      score++;
+      document.getElementById("score").textContent = score;
+      const reward = document.createElement("div");
+      reward.className = "reward";
+      reward.innerHTML = "🎉";
+      document.getElementById("rewardZone").appendChild(reward);
+      setTimeout(() => reward.remove(), 1500);
+    }
+
+    function afficherMessage() {
+      document.getElementById("message-clic").textContent = "Bravo, vous avez cliqué !";
+      incrementScore();
+    }
+    function resetClic() {
+      document.getElementById("message-clic").textContent = "";
+    }
+
+    function clicGauche() {
+      document.getElementById("message-clics").textContent = "Clic gauche détecté !";
+      incrementScore();
+    }
+
+    function clicDroit(e) {
+      e.preventDefault();
+      document.getElementById("message-clics").textContent = "Clic droit détecté !";
+      incrementScore();
+    }
+
+    function verifierTexte() {
+      const val = document.getElementById("champTexte").value.trim();
+      if (val.length >= 3) {
+        document.getElementById("message-texte").textContent = "Bien joué, vous avez tapé votre prénom !";
+        incrementScore();
+      }
+    }
+
+    function resetTexte() {
+      document.getElementById("champTexte").value = "";
+      document.getElementById("message-texte").textContent = "";
+    }
+
+    function verifierAccent() {
+      const val = document.getElementById("champMaj").value.trim();
+      if (val === motChoisi) {
+        document.getElementById("message-maj").textContent = "Parfait, le mot est correct !";
+        incrementScore();
+      }
+    }
+
+    function resetAccent() {
+      location.reload();
+    }
+
+    document.getElementById("objet").addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", "dragged");
+    });
+
+    document.getElementById("corbeille").addEventListener("dragover", e => {
+      e.preventDefault();
+    });
+
+    document.getElementById("corbeille").addEventListener("drop", e => {
+      e.preventDefault();
+      document.getElementById("message-drop").textContent = "Fichier supprimé avec succès !";
+      incrementScore();
+    });
+
+    function resetGlisser() {
+      document.getElementById("message-drop").textContent = "";
+    }
+
+    function detectMotVisible() {
+      const mot = document.getElementById("motCache");
+      const zone = document.getElementById("scrollZone");
+      const zoneRect = zone.getBoundingClientRect();
+      const motRect = mot.getBoundingClientRect();
+      if (motRect.top >= zoneRect.top && motRect.bottom <= zoneRect.bottom) {
+        incrementScore();
+        mot.style.color = 'green';
+      }
+    }
+
+    function resetScroll() {
+      document.getElementById("scrollZone").scrollTop = 0;
+      document.getElementById("motCache").style.color = 'black';
+    }
+  </script>
+<footer style="margin-top: 80px; font-size: 0.9em; color: #555;">
+  © 2025 Matéo CALLEJA Sénior Connect- Tous droits réservés
+</footer>
+</body>
+</html>
